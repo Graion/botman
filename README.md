@@ -3,11 +3,11 @@ Slack bot.
 
 ## Slack Permissions
 
-* bot
-* commands
-* files:read
-* files:write:user
-* users:read
+* `bot`
+* `commands`
+* `files:read`
+* `files:write:user`
+* `users:read`
 
 ## Tools
 

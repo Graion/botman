@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/aaccurso/botman.git"
+    "url": "git+ssh://git@github.com/graion/botman.git"
   },
   "keywords": [
     "slack",
@@ -18,9 +18,9 @@
   "author": "aaccurso",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/aaccurso/botman/issues"
+    "url": "https://github.com/graion/botman/issues"
   },
-  "homepage": "https://github.com/aaccurso/botman#readme",
+  "homepage": "https://github.com/graion/botman#readme",
   "dependencies": {
     "@slack/client": "^3.16.0",
     "botkit": "^0.6.11"
