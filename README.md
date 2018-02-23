@@ -11,5 +11,5 @@ Slack bot.
 
 ## Tools
 
-(Slack Node SDK)[https://github.com/slackapi/node-slack-sdk]
-(BotKit)[https://github.com/howdyai/botkit/blob/master/docs/readme-slack.md]
+* [Slack Node SDK](https://github.com/slackapi/node-slack-sdk)
+* [BotKit](https://github.com/howdyai/botkit/blob/master/docs/readme-slack.md)

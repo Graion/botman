@@ -21,19 +21,20 @@ const deletePageFiles = (page = 1) =>
     slack.files.list({ page, count: 5 })
         .then(response => {
             console.log('slack.files', response);
-            const { paging: { pages, total }, files } = response;
+            const { paging: { pages }, files } = response;
 
             const deleteFiles = files
                 .filter(({ mode }) => ['hosted', 'external'].includes(mode))
                 .map(({ id }) => slack.files.delete(id));
 
             return Promise.all(deleteFiles)
-                .then(() => {
+                .then((pageFiles) => {
                     if (page < pages) {
                         return deletePageFiles(page + 1);
                     }
 
-                    return total;
+                    // Return total deleted files
+                    return pageFiles.reduce((total, files) => total + files.length, 0);
                 });
         });
 
