@@ -35,7 +35,9 @@ const deletePageFiles = (page = 1) =>
                 });
         });
 
-controller.hears('rm -rf .', 'direct_message', (bot, message) => {
+const events = ['direct_message', 'direct_mention', 'mention'];
+
+controller.hears('rm -rf .', events, (bot, message) => {
     const { user } = message;
 
     slack.users.info(user)
@@ -44,15 +46,21 @@ controller.hears('rm -rf .', 'direct_message', (bot, message) => {
                 return bot.reply(message, 'Only admin users allowed');
             }
 
-            bot.reply(message, 'Deleting files :loading:');
+            bot.reply(message, 'Cleaning the batcave :loading:');
             console.log('`rm -rf .`.message', message);
 
             deletePageFiles()
-                .then(total => bot.reply(message, `Deleted ${total} files`))
+                .then(total => {
+                    const reply = total ?
+                        `Deleted ${total} bats :white_check_mark:` :
+                        'The batcave is clean :batman:';
+
+                    bot.reply(message, reply);
+                })
                 .catch(error => {
                     console.error('deletePageFiles', error);
 
-                    bot.reply(message, 'Error deleting files');
+                    bot.reply(message, 'The bats won :no_entry:');
                 });
         });
 });
