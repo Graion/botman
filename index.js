@@ -36,14 +36,23 @@ const deletePageFiles = (page = 1) =>
         });
 
 controller.hears('rm -rf .', 'direct_message', (bot, message) => {
-    bot.reply(message, 'Deleting files :loading:');
-    console.log('`rm -rf .`.message', message);
+    const { user } = message;
 
-    deletePageFiles()
-        .then(total => bot.reply(message, `Deleted ${total} files`))
-        .catch(error => {
-            console.error('deletePageFiles', error);
+    slack.users.info(user)
+        .then(({ user: { is_admin } }) => {
+            if (!is_admin) {
+                return bot.reply(message, 'Only admin users allowed');
+            }
 
-            bot.reply(message, 'Error deleting files');
+            bot.reply(message, 'Deleting files :loading:');
+            console.log('`rm -rf .`.message', message);
+
+            deletePageFiles()
+                .then(total => bot.reply(message, `Deleted ${total} files`))
+                .catch(error => {
+                    console.error('deletePageFiles', error);
+
+                    bot.reply(message, 'Error deleting files');
+                });
         });
 });
