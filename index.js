@@ -17,9 +17,33 @@ bot.startRTM((err, bot, payload) => {
     console.log('startRTM', payload);
 });
 
-controller.hears('hello','direct_message', (bot, message) => {
-    bot.reply(message, 'Processing');
-    slack.files.list()
-        .then(response => bot.reply(message, JSON.stringify(response)))
-        .catch(error => bot.reply(message, JSON.stringify(error)));
+const deletePageFiles = (page = 1) =>
+    slack.files.list({ page, count: 5 })
+        .then(response => {
+            console.log('slack.files', response);
+            const { paging: { pages, total }, files } = response;
+
+            const deleteFiles = files.map(({ id }) => slack.files.delete(id));
+
+            return Promise.all(deleteFiles)
+                .then(() => {
+                    if (page < pages) {
+                        return deletePageFiles(page + 1);
+                    }
+
+                    return total;
+                });
+        });
+
+controller.hears('rm -rf .', 'direct_message', (bot, message) => {
+    bot.reply(message, 'Deleting files :loading:');
+    console.log('`rm -rf .`.message', message);
+
+    deletePageFiles()
+        .then(total => bot.reply(message, `Deleted ${total} files`))
+        .catch(error => {
+            console.error('deletePageFiles', error);
+
+            bot.reply(message, 'Error deleting files');
+        });
 });
