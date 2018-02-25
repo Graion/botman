@@ -1,6 +1,15 @@
 # botman
 Slack bot.
 
+## Deployment
+
+Install `now` globally.
+
+* `now login`: only the first time
+* `now rm -y botman`: to remove last instance
+* `now`: to deploy new instance
+* `now alias`: to alias the instance
+
 ## Slack Permissions
 
 * `bot`
