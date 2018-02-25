@@ -68,3 +68,5 @@ controller.hears('rm -rf .', events, (bot, message) => {
                 });
         });
 });
+
+module.exports = () => "I'm botman";
