@@ -4,7 +4,8 @@
   "description": "Slack bot",
   "main": "index.js",
   "scripts": {
-    "start": "micro index.js"
+    "start": "micro index.js",
+    "deploy": "now rm -y botman && now && now alias"
   },
   "repository": {
     "type": "git",

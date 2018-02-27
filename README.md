@@ -1,15 +1,18 @@
 # botman
 Slack bot.
 
-## Deployment to `now`
+## Deployment to [now](now.sh)
 
 Install `now` globally.
 
-* `now login`: only the first time
-* `now switch`: select the appropiate team
-* `now rm -y botman`: to remove last instance
-* `now`: to deploy new instance
-* `now alias`: to alias the instance
+* `now login`: only the first time.
+* `now switch`: select the appropiate team.
+
+And deploy with `npm run deploy` or manually:
+
+1) `now rm -y botman`: to remove last instance.
+2) `now`: to deploy new instance.
+3) `now alias`: to alias the instance.
 
 > Set `@botman-slack-token` and `@botman-slack-bot-token` secrets in `now` if not configured already in the team.
 
