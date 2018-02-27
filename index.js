@@ -9,6 +9,7 @@ const bot = controller.spawn({
 const { WebClient } = require('@slack/client');
 const slack = new WebClient(process.env.SLACK_TOKEN);
 
+// Start bot RTM
 bot.startRTM((err, bot, payload) => {
     if (err) {
         throw new Error('Could not connect to Slack');
@@ -17,10 +18,15 @@ bot.startRTM((err, bot, payload) => {
     console.log('startRTM', payload);
 });
 
+// Types of file to delete
 const types = ['images', 'zips', 'pdfs'].join(',');
-const count = 5;
 
-const deletePageFiles = (page = 1) =>
+/**
+ * Delete all files from a certain page, based on a page count
+ * @param {number} page
+ * @param {number} count
+ */
+const deletePageFiles = (page = 1, count = 5) =>
     slack.files.list({ page, count, types })
         .then(response => {
             console.log('slack.files', response);
@@ -39,15 +45,21 @@ const deletePageFiles = (page = 1) =>
                 });
         });
 
+// Events to listen for in channels and messages
 const events = ['direct_message', 'direct_mention', 'mention'];
 
+/**
+ * Delete all files in the Slack team
+ * @command rm -rf .
+ */
 controller.hears('rm -rf .', events, (bot, message) => {
     const { user } = message;
 
+    // Check if user has admin privileges
     slack.users.info(user)
         .then(({ user: { is_admin } }) => {
             if (!is_admin) {
-                return bot.reply(message, 'Only admin users allowed');
+                return bot.reply(message, 'Only admin users allowed.');
             }
 
             bot.reply(message, 'Cleaning the batcave :loading:');
@@ -55,9 +67,10 @@ controller.hears('rm -rf .', events, (bot, message) => {
 
             deletePageFiles()
                 .then(total => {
+                    const cleanMessage = 'The batcave is now clean :batman:';
                     const reply = total ?
-                        `Deleted ${total} bats :white_check_mark:` :
-                        'The batcave is clean :batman:';
+                        `Deleted ${total} bats :white_check_mark: ${cleanMessage}` :
+                        'The batcave is already clean :batman:';
 
                     bot.reply(message, reply);
                 })
@@ -69,4 +82,4 @@ controller.hears('rm -rf .', events, (bot, message) => {
         });
 });
 
-module.exports = () => "I'm botman";
+module.exports = () => "I'm botman.";

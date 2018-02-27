@@ -1,0 +1,9 @@
+{
+    "name": "botman",
+    "alias": "botman",
+    "public": true,
+    "env": {
+        "SLACK_TOKEN": "@botman-slack-token",
+        "SLACK_BOT_TOKEN": "@botman-slack-bot-token"
+    }
+}
