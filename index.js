@@ -36,6 +36,7 @@ const types = ['images', 'zips', 'pdfs'].join(',');
 
 /**
  * Iterate over all files from a certain page, based on a page count
+ * @param {function} iterator
  * @param {number} page
  * @param {number} count
  */
@@ -101,7 +102,7 @@ controller.hears('ls', events, (bot, message) => {
         iteratePageFiles(({ title, name }) => {
             const reply = title === name ? title : `${title}: \`${name}\``;
 
-            bot.reply(message, reply);
+            return new Promise(resolve => bot.reply(message, reply, resolve));
         })
             .then(total => {
                 const reply = total ?
