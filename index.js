@@ -89,7 +89,11 @@ controller.hears('rm -rf .', events, (bot, message) => {
  * @command ls
  */
 controller.hears('ls', events, (bot, message) => {
-    iteratePageFiles(({ title, name }) => bot.reply(message, `${title}: ${name}`))
+    iteratePageFiles(({ title, name }) => {
+        const reply = title === name ? title : `${title}: \`${name}\``;
+
+        bot.reply(message, reply);
+    })
         .then(total => {
             const reply = total ?
                 `There are ${total} bats in the batcave :batman:` :
