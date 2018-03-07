@@ -24,23 +24,22 @@ bot.startRTM((err, bot, payload) => {
 const types = ['images', 'zips', 'pdfs'].join(',');
 
 /**
- * Delete all files from a certain page, based on a page count
+ * Iterate over all files from a certain page, based on a page count
  * @param {number} page
  * @param {number} count
  */
-const deletePageFiles = (page = 1, count = 5) =>
+const iteratePageFiles = (iterator, page = 1, count = 5) =>
     slack.files.list({ page, count, types })
         .then(response => {
             console.log('slack.files', response);
+
             const { paging: { pages, total }, files } = response;
+            const mapFiles = files.map(iterator);
 
-            const deleteFiles = files
-                .map(({ id }) => slack.files.delete(id));
-
-            return Promise.all(deleteFiles)
+            return Promise.all(mapFiles)
                 .then(() => {
                     if (page < pages) {
-                        return deletePageFiles(page + 1);
+                        return iteratePageFiles(iterator, page + 1);
                     }
 
                     return total;
@@ -56,6 +55,7 @@ const events = ['direct_message', 'direct_mention', 'mention'];
  */
 controller.hears('rm -rf .', events, (bot, message) => {
     const { user } = message;
+    const deleteFiles = ({ id }) => slack.files.delete(id);
 
     // Check if user has admin privileges
     slack.users.info(user)
@@ -67,7 +67,7 @@ controller.hears('rm -rf .', events, (bot, message) => {
             bot.reply(message, 'Cleaning the batcave :loading:');
             console.log('`rm -rf .`.message', message);
 
-            deletePageFiles()
+            iteratePageFiles(deleteFiles)
                 .then(total => {
                     const cleanMessage = 'The batcave is now clean :batman:';
                     const reply = total ?
@@ -81,6 +81,21 @@ controller.hears('rm -rf .', events, (bot, message) => {
 
                     bot.reply(message, 'The bats won :no_entry:');
                 });
+        });
+});
+
+/**
+ * List all files in the Slack team
+ * @command ls
+ */
+controller.hears('ls', events, (bot, message) => {
+    iteratePageFiles(({ title, name }) => bot.reply(message, `${title}: ${name}`))
+        .then(total => {
+            const reply = total ?
+                `There are ${total} bats in the batcave :batman:` :
+                'There are no bats :batman:';
+
+            bot.reply(message, reply);
         });
 });
 
