@@ -12,6 +12,8 @@ const slack = new WebClient(process.env.SLACK_TOKEN);
 // Start bot RTM
 bot.startRTM((err, bot, payload) => {
     if (err) {
+        console.error('Could not connect to Slack', err);
+
         throw new Error('Could not connect to Slack');
     }
 

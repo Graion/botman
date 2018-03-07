@@ -14,7 +14,7 @@ And deploy with `npm run deploy` or manually:
 2) `now`: to deploy new instance.
 3) `now alias`: to alias the instance.
 
-> Set `@botman-slack-token` and `@botman-slack-bot-token` secrets in `now` if not configured already in the team.
+> Set `@botman-slack-token` and `@botman-slack-bot-token` [secrets in `now`](https://zeit.co/blog/environment-variables-secrets) if not configured already in the team. If the app is reinstalled in Slack you'll need to remove the secrets and add the new tokens.
 
 ## Slack Permissions
 
