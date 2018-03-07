@@ -20,6 +20,17 @@ bot.startRTM((err, bot, payload) => {
     console.log('startRTM', payload);
 });
 
+// Check if user has admin privileges
+const userIsAdmin = (user, cb) =>
+    slack.users.info(user)
+        .then(({ user: { is_admin } }) => {
+            if (!is_admin) {
+                return bot.reply(message, 'Only admin users allowed.');
+            }
+
+            cb();
+        });
+
 // Types of file to delete
 const types = ['images', 'zips', 'pdfs'].join(',');
 
@@ -58,13 +69,8 @@ controller.hears('rm -rf .', events, (bot, message) => {
     const deleteFiles = ({ id }) => slack.files.delete(id);
 
     // Check if user has admin privileges
-    slack.users.info(user)
-        .then(({ user: { is_admin } }) => {
-            if (!is_admin) {
-                return bot.reply(message, 'Only admin users allowed.');
-            }
-
-            bot.reply(message, 'Cleaning the batcave :loading:');
+    userIsAdmin(user, () => {
+        bot.reply(message, 'Cleaning the batcave :loading:');
             console.log('`rm -rf .`.message', message);
 
             iteratePageFiles(deleteFiles)
@@ -81,7 +87,7 @@ controller.hears('rm -rf .', events, (bot, message) => {
 
                     bot.reply(message, 'The bats won :no_entry:');
                 });
-        });
+    });
 });
 
 /**
@@ -89,18 +95,22 @@ controller.hears('rm -rf .', events, (bot, message) => {
  * @command ls
  */
 controller.hears('ls', events, (bot, message) => {
-    iteratePageFiles(({ title, name }) => {
-        const reply = title === name ? title : `${title}: \`${name}\``;
+    const { user } = message;
 
-        bot.reply(message, reply);
-    })
-        .then(total => {
-            const reply = total ?
-                `There are ${total} bats in the batcave :batman:` :
-                'There are no bats :batman:';
+    userIsAdmin(user, () => {
+        iteratePageFiles(({ title, name }) => {
+            const reply = title === name ? title : `${title}: \`${name}\``;
 
             bot.reply(message, reply);
-        });
+        })
+            .then(total => {
+                const reply = total ?
+                    `There are ${total} bats in the batcave :batman:` :
+                    'There are no bats :batman:';
+
+                bot.reply(message, reply);
+            });
+    });
 });
 
 module.exports = () => "I'm botman.";
