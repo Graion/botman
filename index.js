@@ -37,11 +37,17 @@ const types = ['images', 'zips', 'pdfs'].join(',');
 /**
  * Iterate over all files from a certain page, based on a page count
  * @param {function} iterator
- * @param {number} page
- * @param {number} count
+ * @param {object} options
  */
-const iteratePageFiles = (iterator, page = 1, count = 5) =>
-    slack.files.list({ page, count, types })
+const iteratePageFiles = (iterator, options = {}) => {
+    const listOptions = {
+        page: 1,
+        count: 5,
+        types,
+        ...options
+    };
+
+    return slack.files.list(listOptions)
         .then(response => {
             console.log('slack.files', response);
 
@@ -50,22 +56,25 @@ const iteratePageFiles = (iterator, page = 1, count = 5) =>
 
             return Promise.all(mapFiles)
                 .then(() => {
-                    if (page < pages) {
-                        return iteratePageFiles(iterator, page + 1);
+                    if (listOptions.page < pages) {
+                        return iteratePageFiles(iterator, {
+                            ...listOptions, page: listOptions.page + 1
+                        });
                     }
 
                     return total;
                 });
         });
+    };
 
 // Events to listen for in channels and messages
 const events = ['direct_message', 'direct_mention', 'mention'];
 
 /**
  * Delete all files in the Slack team
- * @command rm -rf .
+ * @command rm -rf /
  */
-controller.hears('rm -rf .', events, (bot, message) => {
+controller.hears('rm -rf /', events, (bot, message) => {
     const { user } = message;
     const deleteFiles = ({ id }) => slack.files.delete(id);
 
@@ -93,9 +102,9 @@ controller.hears('rm -rf .', events, (bot, message) => {
 
 /**
  * List all files in the Slack team
- * @command ls
+ * @command ls /
  */
-controller.hears('ls', events, (bot, message) => {
+controller.hears('ls /', events, (bot, message) => {
     const { user } = message;
 
     userIsAdmin(user, () => {
@@ -112,6 +121,56 @@ controller.hears('ls', events, (bot, message) => {
                 bot.reply(message, reply);
             });
     });
+});
+
+/**
+ * Delete personal files in the Slack team
+ * @command rm -rf ~
+ */
+controller.hears('rm -rf ~', events, (bot, message) => {
+    const { user } = message;
+    const deleteFiles = ({ id }) => slack.files.delete(id);
+
+    bot.reply(message, 'Cleaning your personal batcave :loading:');
+        console.log('`rm -rf ~`.message', message);
+
+        iteratePageFiles(deleteFiles, { user })
+            .then(total => {
+                const cleanMessage = 'Your batcave is now clean :batman:';
+                const reply = total ?
+                    `Deleted ${total} bats :white_check_mark: ${cleanMessage}` :
+                    'Your batcave is already clean :batman:';
+
+                bot.reply(message, reply);
+            })
+            .catch(error => {
+                console.error('deletePageFiles', error);
+
+                bot.reply(message, 'The bats won :no_entry:');
+            });
+});
+
+/**
+ * List personal files in the Slack team
+ * @command ls ~
+ */
+controller.hears('ls ~', events, (bot, message) => {
+    const { user } = message;
+
+    const listFiles = ({ title, name }) => {
+        const reply = title === name ? title : `${title}: \`${name}\``;
+
+        return new Promise(resolve => bot.whisper(message, reply, resolve));
+    };
+
+    iteratePageFiles(listFiles, { user })
+        .then(total => {
+            const reply = total ?
+                `There are ${total} bats in your batcave :batman:` :
+                'There are no bats :batman:';
+
+            bot.reply(message, reply);
+        });
 });
 
 const welcome = "I'm botman.";
