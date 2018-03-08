@@ -102,7 +102,7 @@ controller.hears('ls', events, (bot, message) => {
         iteratePageFiles(({ title, name }) => {
             const reply = title === name ? title : `${title}: \`${name}\``;
 
-            return new Promise(resolve => bot.reply(message, reply, resolve));
+            return new Promise(resolve => bot.whisper(message, reply, resolve));
         })
             .then(total => {
                 const reply = total ?
@@ -114,4 +114,6 @@ controller.hears('ls', events, (bot, message) => {
     });
 });
 
-module.exports = () => "I'm botman.";
+const welcome = "I'm botman.";
+
+module.exports = () => welcome;
